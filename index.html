@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset='utf-8' />
+    <title></title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.34.0/mapbox-gl.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.4.3/proj4.js'></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+        crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+        crossorigin="anonymous">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+        crossorigin="anonymous"></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.34.0/mapbox-gl.css' rel='stylesheet' />
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+        
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+        }
+        
+        .mapboxgl-popup {
+            max-width: 400px;
+            font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+        }
+        
+        #menu {
+            background: #fff;
+            position: absolute;
+            z-index: 1;
+            top: 10px;
+            right: 10px;
+            border-radius: 3px;
+            width: 120px;
+            border: 1px solid rgba(0, 0, 0, 0.4);
+            font-family: 'Open Sans', sans-serif;
+        }
+        
+        #menu a {
+            font-size: 13px;
+            color: #404040;
+            display: block;
+            margin: 0;
+            padding: 0;
+            padding: 10px;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+            text-align: center;
+        }
+        
+        #menu a:last-child {
+            border: none;
+        }
+        
+        #menu a:hover {
+            background-color: #f8f8f8;
+            color: #404040;
+        }
+        
+        #menu a.active {
+            background-color: #3887be;
+            color: #ffffff;
+        }
+        
+        #menu a.active:hover {
+            background: #3074a4;
+        }
+        
+        .progress {
+            position: absolute;
+            margin-left: auto;
+            margin-right: auto;
+            left: 0;
+            right: 0;
+            top: 50%;
+            z-index: 1000;
+            width: 300px;
+        }
+        
+        .legend {
+            background-color: #fff;
+            border-radius: 3px;
+            bottom: 30px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.10);
+            font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+            padding: 10px;
+            position: absolute;
+            right: 10px;
+            z-index: 1;
+        }
+        
+        @media print {
+            .legend {
+                background-color: #fff !important;
+                -webkit-print-color-adjust: exact;
+            }
+            .l1 {
+                background-color: #723122 !important;
+                -webkit-print-color-adjust: exact;
+            }
+            .l2 {
+                background-color: #8B4225 !important;
+                -webkit-print-color-adjust: exact;
+            }
+            .l3 {
+                background-color: #A25626 !important;
+                -webkit-print-color-adjust: exact;
+            }
+            .l4 {
+                background-color: #B86B25 !important;
+                -webkit-print-color-adjust: exact;
+            }
+            .l5 {
+                background-color: #CA8323 !important;
+                -webkit-print-color-adjust: exact;
+            }
+            .l6 {
+                background-color: #DA9C20 !important;
+                -webkit-print-color-adjust: exact;
+            }
+            .l7 {
+                background-color: #E6B71E !important;
+                -webkit-print-color-adjust: exact;
+            }
+            .l8 {
+                background-color: #EED322 !important;
+                -webkit-print-color-adjust: exact;
+            }
+            .l9 {
+                background-color: #F2F12D !important;
+                -webkit-print-color-adjust: exact;
+            }
+        }
+        
+        .l1 {
+            background-color: #723122;
+        }
+        
+        .l2 {
+            background-color: #8B4225;
+        }
+        
+        .l3 {
+            background-color: #A25626;
+        }
+        
+        .l4 {
+            background-color: #B86B25;
+        }
+        
+        .l5 {
+            background-color: #CA8323;
+        }
+        
+        .l6 {
+            background-color: #DA9C20;
+        }
+        
+        .l7 {
+            background-color: #E6B71E;
+        }
+        
+        .l8 {
+            background-color: #EED322;
+        }
+        
+        .l9 {
+            background-color: #F2F12D;
+        }
+        
+        .legend h4 {
+            margin: 0 0 10px;
+        }
+        
+        .legend div span {
+            border-radius: 50%;
+            display: inline-block;
+            height: 10px;
+            margin-right: 5px;
+            width: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="progress">
+        <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"
+            style="width: 100%;">
+            Drag og drop en fil
+        </div>
+    </div>
+    <nav id="menu"></nav>
+    <div id='map'></div>
+    <div class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Rapport</h4>
+                </div>
+                <div class="modal-body">
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Luk</button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <!-- /.modal -->
+    <div id='state-legend' class='legend'>
+        <h4>Ejendomsvurdering</h4>
+        <div class="l1"></div>
+        <div><span class="l1"></span>25.000.000 kr.</div>
+        <div><span class="l2"></span>10.000.000 kr.</div>
+        <div><span class="l3"></span>7.500.000 kr.</div>
+        <div><span class="l4"></span>5.000.000 kr.</div>
+        <div><span class="l5"></span>2.500.000 kr.</div>
+        <div><span class="l6"></span>1.000.000 kr.</div>
+        <div><span class="l7"></span>750.000 kr.</div>
+        <div><span class="l8"></span>500.000 kr.</div>
+        <div><span class="l9"></span>0 kr.</div>
+    </div>
+    <script src="main.js"></script>
+</body>
+
+</html>
