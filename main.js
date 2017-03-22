@@ -462,6 +462,7 @@ function doWork() {
 function handleFileSelect(evt) {
     evt.stopPropagation();
     evt.preventDefault();
+    $('.progress').show();
     $('.progress-bar').addClass('progress-bar-success');
     $('.modal-body').html('');
     var files = evt.dataTransfer.files; // FileList object.
