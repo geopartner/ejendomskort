@@ -75,14 +75,7 @@
         }
         
         .progress {
-            position: absolute;
-            margin-left: auto;
-            margin-right: auto;
-            left: 0;
-            right: 0;
-            top: 50%;
-            z-index: 1000;
-            width: 300px;
+            width: 100%;
         }
         
         .legend {
@@ -196,16 +189,16 @@
             margin-right: 5px;
             width: 10px;
         }
+        
+        .modal-body {
+            max-height: calc(100vh - 200px);
+            overflow-y: auto;
+        }
     </style>
 </head>
 
 <body>
-    <div class="progress">
-        <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"
-            style="width: 100%;">
-            Drag og drop en fil
-        </div>
-    </div>
+
     <nav id="menu"></nav>
     <div id='map'></div>
     <div class="modal fade" tabindex="-1" role="dialog">
@@ -213,12 +206,27 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">Rapport</h4>
+                    <h4 class="modal-title">Drag og drop en CSV fil</h4>
                 </div>
                 <div class="modal-body">
-
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Ejendomsnummer</th>
+                                <th>Status</th>
+                                <th>Matrikler</th>
+                            </tr>
+                        </thead>
+                        <tbody id="status">
+                        </tbody>
+                    </table>
                 </div>
                 <div class="modal-footer">
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+                            style="width: 0%;">
+                        </div>
+                    </div>
                     <button type="button" class="btn btn-default" data-dismiss="modal">Luk</button>
                 </div>
             </div>

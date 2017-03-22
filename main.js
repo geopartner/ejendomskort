@@ -162,6 +162,8 @@ var map = new mapboxgl.Map({
     zoom: 7 // starting zoom
 });
 map.on('load', function () {
+    $('.modal').modal('show');
+
     /*
     map.addLayer({
         'id': '3d-buildings',
@@ -393,12 +395,6 @@ var index = {};
 var bbox = [[100, 100], [0, 0]];
 var max = 0;
 function doWork() {
-    console.log(queue.length)
-    /*
-    progressbar.progressbar({
-        value: parseInt(100 * (max - queue.length) / max)
-    });
-    */
     var v = parseInt(100 * (max - queue.length) / max)
     $('.progress-bar').css('width', v + '%').attr('aria-valuenow', v).text(v + '%');
 
@@ -425,9 +421,7 @@ function doWork() {
                 //$.getJSON("https://services.kortforsyningen.dk/?login=runetvilum&password=rutv2327&outgeoref=EPSG:4326&servicename=RestGeokeys_v2&method=matrikelnr&ejkode=" + properties[columns[25]] + "&matnr=" + properties[columns[26]] + "&geometry=true", function (data) {
                 $.getJSON("https://services.kortforsyningen.dk/?login=runetvilum&password=rutv2327&servicename=RestGeokeys_v2&method=esrejendom&esrejdnr=" + esrejdnr + "&geometry=true", function (data) {
                     if (data.features) {
-                        if (data.features.length > 1) {
-                            console.log('flere features', data);
-                        }
+                        $('#status').append('<tr><td>' + esrejdnr + '</td><td>OK</td><td>' + data.features.length + '</td></tr>');
                         for (var n = 0; n < data.features.length; n++) {
                             var feature1 = data.features[n];
                             var feature = reproject(feature1, utm32, wgs84);
@@ -447,8 +441,7 @@ function doWork() {
                             geojson.features.push(feature);
                         }
                     } else {
-                        console.log('fejl', data);
-                        $('.modal-body').append('<p>Ingen data for ejendomsnummer: ' + esrejdnr + '</p>');
+                        $('#status').append('<tr class="danger"><td>' + esrejdnr + '</td><td>Fejl</td><td>0</td></tr>');
                     }
                     doWork();
                 });
@@ -459,8 +452,6 @@ function doWork() {
             doWork();
         }
     } else {
-        $('.progress').hide();
-        $('.modal').modal('show');
         var source = map.getSource('csv');
         source.setData(geojson);
         map.fitBounds(bbox);
@@ -469,9 +460,8 @@ function doWork() {
 function handleFileSelect(evt) {
     evt.stopPropagation();
     evt.preventDefault();
-    $('.progress').show();
-    $('.progress-bar').addClass('progress-bar-success');
-    $('.modal-body').html('');
+    $('.modal').modal('show');
+    $('#status').html('');
     var files = evt.dataTransfer.files; // FileList object.
     for (var file = 0, f; f = files[file]; file++) {
         var reader = new FileReader();
@@ -542,12 +532,7 @@ function handleDragOver(evt) {
     evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
 }
 window.addEventListener('load', function () {
-    var dropZone = document.getElementById('map');
-    //drop.ondragover = cancel;
-    //drop.ondragenter = cancel;
-    //drop.ondrop = drop;
-
-
+    var dropZone = document.body; // document.getElementById('map');
     dropZone.addEventListener('dragover', handleDragOver, false);
     dropZone.addEventListener('drop', handleFileSelect, false);
 });
