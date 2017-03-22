@@ -184,6 +184,13 @@ map.on('load', function () {
         }
     });
     */
+    var style = map.getStyle();
+    for (var n = 0; n < style.layers.length; n++) {
+        var layer = style.layers[n];
+        if (layer.hasOwnProperty('layout') && layer.layout.hasOwnProperty('text-field') && layer.layout['text-field'] === '{name_en}') {
+            map.setLayoutProperty(layer.id, 'text-field', '{name}');
+        }
+    }
     map.addSource('csv', {
         type: 'geojson',
         data: geojson
