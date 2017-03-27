@@ -193,6 +193,56 @@ map.on('load', function () {
             map.setLayoutProperty(layer.id, 'text-field', '{name}');
         }
     }
+    /*map.addSource('ejerlav', {
+        "type": "vector",        
+        "tiles": ["http://192.168.1.10:8080/geoserver/gwc/service/wmts?REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&LAYER=geopartner:ejerlav&STYLE=&TILEMATRIX=EPSG:900913:{z}&TILEMATRIXSET=EPSG:900913&FORMAT=application/x-protobuf;type=mapbox-vector&TILECOL={x}&TILEROW={y}"]
+    });
+    map.addLayer({
+        'id': 'Ejerlav',
+        'type': 'fill',
+        'source': 'ejerlav',
+        'source-layer': 'ejerlav',
+        'paint': {
+            'fill-color': '#f00',
+            'fill-opacity': 0.5
+        }
+    });
+    map.addSource('matrikelskel', {
+        "type": "vector",        
+        "tiles": ["http://192.168.1.10:8080/geoserver/gwc/service/wmts?REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&LAYER=geopartner:matrikelskel&STYLE=&TILEMATRIX=EPSG:900913:{z}&TILEMATRIXSET=EPSG:900913&FORMAT=application/x-protobuf;type=mapbox-vector&TILECOL={x}&TILEROW={y}"],
+        'minzoom': 14
+    });
+    map.addSource('centroide', {
+        "type": "vector",        
+        "tiles": ["http://192.168.1.10:8080/geoserver/gwc/service/wmts?REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&LAYER=geopartner:centroide&STYLE=&TILEMATRIX=EPSG:900913:{z}&TILEMATRIXSET=EPSG:900913&FORMAT=application/x-protobuf;type=mapbox-vector&TILECOL={x}&TILEROW={y}"],
+        'minzoom': 16
+    });
+    map.addLayer({
+        'id': 'Matrikelskel',
+        'type': 'line',
+        'source': 'matrikelskel',
+        'source-layer': 'matrikelskel',
+        'paint': {
+            'line-color': '#000',
+        }
+    });
+    map.addLayer({
+        'id': 'Matrikelnummer',
+        'type': 'symbol',
+        'source': 'centroide',
+        'source-layer': 'centroide',
+        'layout': {
+            'text-field': '{matrikelnummer}',
+            'text-font': [
+                'DIN Offc Pro Medium',
+                'Arial Unicode MS Bold'
+            ],
+            'text-size': 12
+        },
+        'paint': {
+            'text-color': '#000'
+        }
+    })*/
     map.addSource('csv', {
         type: 'geojson',
         data: geojson
@@ -400,13 +450,13 @@ function doWork() {
 
     if (queue.length > 0) {
         var properties = queue.pop();
-        if (properties[columns[8]] && properties[columns[9]]) {
+        if (properties[columns[4]] && properties[columns[5]]) {
             /*
             var ejerlav = properties[columns[25]];
             var matrnr = properties[columns[26]]
             */
-            var kommunenr = properties[columns[8]];
-            var ejdnr = properties[columns[9]];
+            var kommunenr = properties[columns[4]];
+            var ejdnr = properties[columns[5]];
             var esrejdnr = kommunenr + ejdnr.padStart(7, '0');
             /*
             if (!index.hasOwnProperty(ejerlav)) {
@@ -417,7 +467,6 @@ function doWork() {
             if (!index.hasOwnProperty(esrejdnr)) {
                 //index[ejerlav][matrnr] = true;
                 index[esrejdnr] = true;
-                console.log(esrejdnr);
                 //$.getJSON("https://services.kortforsyningen.dk/?login=runetvilum&password=rutv2327&outgeoref=EPSG:4326&servicename=RestGeokeys_v2&method=matrikelnr&ejkode=" + properties[columns[25]] + "&matnr=" + properties[columns[26]] + "&geometry=true", function (data) {
                 $.getJSON("https://services.kortforsyningen.dk/?login=runetvilum&password=rutv2327&servicename=RestGeokeys_v2&method=esrejendom&esrejdnr=" + esrejdnr + "&geometry=true", function (data) {
                     if (data.features) {
