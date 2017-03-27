@@ -525,10 +525,10 @@ function handleFileSelect(evt) {
                     features: []
                 };
                 index = {};
-                for (var j = 1; j < lines.length; j++) {
+                for (var j = 0; j < lines.length; j++) {
                     var linenum = j;
                     var data = lines[j].split(';');
-                    if (j === 1) {
+                    if (j === 0) {
                         columns = data;
                     } else {
                         var properties = {};
@@ -540,12 +540,12 @@ function handleFileSelect(evt) {
                         properties.historisk_min_height = 0;
                         properties.historisk_height = 0;
                         var aktuel = 0, historisk = 0;
-                        if (properties.Historisk_ejendomsværdi) {
-                            historisk = parseInt(properties.Historisk_ejendomsværdi)
+                        if (properties.hasOwnProperty(columns[17])) {
+                            historisk = parseInt(properties[columns[17]])
                             properties.historisk_height = historisk / 100000;
                         }
-                        if (properties.Ejendoms_værdi_Aktuel) {
-                            aktuel = parseInt(properties.Ejendoms_værdi_Aktuel)
+                        if (properties.hasOwnProperty(columns[12])) {
+                            aktuel = parseInt(properties[columns[12]])
                             properties.aktuel_height = aktuel / 100000;
                         }
                         if (aktuel < historisk) {
