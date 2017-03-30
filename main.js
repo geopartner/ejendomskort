@@ -541,11 +541,11 @@ function handleFileSelect(evt) {
                         properties.historisk_height = 0;
                         var aktuel = 0, historisk = 0;
                         if (properties.hasOwnProperty(columns[17])) {
-                            historisk = parseInt(properties[columns[17]])
+                            historisk = parseInt(properties[columns[17]].replace('.',''))
                             properties.historisk_height = historisk / 100000;
                         }
                         if (properties.hasOwnProperty(columns[12])) {
-                            aktuel = parseInt(properties[columns[12]])
+                            aktuel = parseInt(properties[columns[12]].replace('.',''))
                             properties.aktuel_height = aktuel / 100000;
                         }
                         if (aktuel < historisk) {
