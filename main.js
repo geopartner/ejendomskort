@@ -161,9 +161,32 @@ var map = new mapboxgl.Map({
     center: [11, 56], // starting position
     zoom: 7 // starting zoom
 });
+var geocoder = new MapboxGeocoder({
+    accessToken: mapboxgl.accessToken
+});
+map.addControl(geocoder, 'top-left');
 map.on('load', function () {
     $('.modal').modal('show');
+    map.addSource('single-point', {
+        "type": "geojson",
+        "data": {
+            "type": "FeatureCollection",
+            "features": []
+        }
+    });
 
+    map.addLayer({
+        "id": "point",
+        "source": "single-point",
+        "type": "circle",
+        "paint": {
+            "circle-radius": 10,
+            "circle-color": "#007cbf"
+        }
+    });
+    geocoder.on('result', function (ev) {
+        map.getSource('single-point').setData(ev.result.geometry);
+    });
     /*
     map.addLayer({
         'id': '3d-buildings',
