@@ -252,6 +252,7 @@ map.on('load', function () {
         'type': 'fill',
         'source': 'csv',
         'paint': {
+            'fill-outline-color': '#000',
             'fill-color': {
                 property: 'aktuel',
                 stops: [
@@ -277,6 +278,7 @@ map.on('load', function () {
         'type': 'fill',
         'source': 'csv',
         'paint': {
+            'fill-outline-color': '#000',
             'fill-color': {
                 property: 'historisk',
                 stops: [
@@ -292,6 +294,30 @@ map.on('load', function () {
                 ]
             },
             'fill-opacity': 0.75
+        },
+        'layout': {
+            'visibility': 'none'
+        }
+    });
+    map.addLayer({
+        'id': 'Delta',
+        'type': 'fill-extrusion',
+        //        'minzoom': 15,
+        'source': 'csv',
+        'paint': {
+            'fill-extrusion-color': {
+                'type': 'identity',
+                'property': 'delta_color'
+            },
+            'fill-extrusion-height': {
+                'type': 'identity',
+                'property': 'delta_height'
+            },
+            'fill-extrusion-base': {
+                'type': 'identity',
+                'property': 'delta_min_height'
+            },
+            'fill-extrusion-opacity': .6
         },
         'layout': {
             'visibility': 'none'
@@ -369,8 +395,25 @@ map.on('load', function () {
             'text-color': '#000'
         }
     })
+    map.addLayer({
+        'id': 'Delta-label',
+        'type': 'symbol',
+        'source': 'csv',
+        'layout': {
+            'visibility': 'none',
+            'text-field': '{delta_locale}',
+            'text-font': [
+                'DIN Offc Pro Medium',
+                'Arial Unicode MS Bold'
+            ],
+            'text-size': 12
+        },
+        'paint': {
+            'text-color': '#000'
+        }
+    })
     map.on('click', function (e) {
-        var features = map.queryRenderedFeatures(e.point, { layers: ['Aktuel', 'Historisk'] });
+        var features = map.queryRenderedFeatures(e.point, { layers: ['Aktuel', 'Historisk', 'Delta'] });
 
         if (!features.length) {
             return;
@@ -395,10 +438,10 @@ map.on('load', function () {
     // Use the same approach as above to indicate that the symbols are clickable
     // by changing the cursor style to 'pointer'.
     map.on('mousemove', function (e) {
-        var features = map.queryRenderedFeatures(e.point, { layers: ['Aktuel', 'Historisk'] });
+        var features = map.queryRenderedFeatures(e.point, { layers: ['Aktuel', 'Historisk', 'Delta'] });
         map.getCanvas().style.cursor = (features.length) ? 'pointer' : '';
     });
-    var toggleableLayerIds = ['Aktuel', 'Historisk'];
+    var toggleableLayerIds = ['Aktuel', 'Historisk', 'Delta'];
     var links = {}
     for (var i = 0; i < toggleableLayerIds.length; i++) {
         var id = toggleableLayerIds[i];
@@ -417,21 +460,23 @@ map.on('load', function () {
         }
 
         link.onclick = function (e) {
-            // var clickedLayer = this.textContent;
-            e.preventDefault();
-            e.stopPropagation();
-            for (var i = 0; i < toggleableLayerIds.length; i++) {
-                var id = toggleableLayerIds[i];
-                var visibility = map.getLayoutProperty(id, 'visibility');
+            if (this.className !== 'active') {
+                var clickedLayer = this.textContent;
+                e.preventDefault();
+                e.stopPropagation();
+                for (var i = 0; i < toggleableLayerIds.length; i++) {
+                    var id = toggleableLayerIds[i];
+                    //var visibility = map.getLayoutProperty(id, 'visibility');
 
-                if (visibility === 'visible') {
-                    map.setLayoutProperty(id, 'visibility', 'none');
-                    map.setLayoutProperty(id + '-label', 'visibility', 'none');
-                    links[id].className = '';
-                } else {
-                    links[id].className = 'active';
-                    map.setLayoutProperty(id, 'visibility', 'visible');
-                    map.setLayoutProperty(id + '-label', 'visibility', 'visible');
+                    if (id !== clickedLayer) {
+                        map.setLayoutProperty(id, 'visibility', 'none');
+                        map.setLayoutProperty(id + '-label', 'visibility', 'none');
+                        links[id].className = '';
+                    } else {
+                        links[id].className = 'active';
+                        map.setLayoutProperty(id, 'visibility', 'visible');
+                        map.setLayoutProperty(id + '-label', 'visibility', 'visible');
+                    }
                 }
             }
         };
@@ -541,22 +586,27 @@ function handleFileSelect(evt) {
                         properties.historisk_height = 0;
                         var aktuel = 0, historisk = 0;
                         if (properties.hasOwnProperty(columns[17])) {
-                            historisk = parseInt(properties[columns[17]].replace('.',''))
+                            historisk = parseInt(properties[columns[17]].replace(/\./g, ''))
                             properties.historisk_height = historisk / 100000;
                         }
                         if (properties.hasOwnProperty(columns[12])) {
-                            aktuel = parseInt(properties[columns[12]].replace('.',''))
+                            aktuel = parseInt(properties[columns[12]].replace(/\./g, ''))
                             properties.aktuel_height = aktuel / 100000;
                         }
                         if (aktuel < historisk) {
                             properties.historisk_min_height = properties.aktuel_height;
                             properties.aktuel_min_height = 0;
+                            properties.delta_color = "#F00";
+                            properties.delta_height = (historisk - aktuel) / 100000;
                         } else {
                             properties.historisk_min_height = 0;
                             properties.aktuel_min_height = properties.historisk_height;
+                            properties.delta_color = "#0F0";
+                            properties.delta_height = (aktuel - historisk) / 100000;
                         }
                         properties.aktuel_locale = aktuel.toLocaleString('da-DK') + ' kr.';
                         properties.historisk_locale = historisk.toLocaleString('da-DK') + ' kr.';
+                        properties.delta_locale = (aktuel - historisk).toLocaleString('da-DK') + ' kr.';
                         properties.aktuel = aktuel;
                         properties.historisk = historisk;
 
@@ -570,7 +620,7 @@ function handleFileSelect(evt) {
         })(f);
 
         // Read in the image file as a data URL.
-        reader.readAsText(f);
+        reader.readAsText(f, 'windows-1252');
 
     }
 }
