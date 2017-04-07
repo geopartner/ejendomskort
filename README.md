@@ -1,3 +1,3 @@
 # ejendomskort
 Ejendomsværdikort
-[Demo](https://runetvilum.github.io/ejendomskort)
+[Demo](https://geopartner.github.io/ejendomskort)
