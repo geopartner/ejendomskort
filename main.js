@@ -270,7 +270,7 @@ map.on('load', function () {
         type: 'geojson',
         data: geojson
     });
-    map.addLayer({
+    map.addLayer({ 
         'id': 'Aktuel',
         'type': 'fill',
         'source': 'csv',
