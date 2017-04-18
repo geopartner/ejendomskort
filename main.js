@@ -385,12 +385,13 @@ map.on('load', function () {
     });
 */
 
+
     map.addLayer({
-        'id': 'Historisk-label',
+        'id': 'Aktuel-label',
         'type': 'symbol',
         'source': 'csv',
         'layout': {
-            'text-field': '{historisk_locale}',
+            'text-field': '{aktuel_locale}',
             'text-font': [
                 'DIN Offc Pro Medium',
                 'Arial Unicode MS Bold'
@@ -402,12 +403,12 @@ map.on('load', function () {
         }
     })
     map.addLayer({
-        'id': 'Aktuel-label',
+        'id': 'Historisk-label',
         'type': 'symbol',
         'source': 'csv',
         'layout': {
             'visibility': 'none',
-            'text-field': '{aktuel_locale}',
+            'text-field': '{historisk_locale}',
             'text-font': [
                 'DIN Offc Pro Medium',
                 'Arial Unicode MS Bold'
@@ -444,10 +445,14 @@ map.on('load', function () {
 
         var feature = features[0];
         var html = "<table>";
+        var i = 0;
         for (var key in feature.properties) {
             if (feature.properties[key]) {
-                html += "<tr><td>" + key + "</td><td>" + feature.properties[key] + "</td></tr>";
+                html += "<tr><td>" + key + "</td><td>" + feature.properties[key] + "</td></tr>";            
+                i++;
             }
+            if (i > 4)
+                break;
         }
         html += "</table>";
         // Populate the popup and set its coordinates
@@ -518,13 +523,13 @@ function doWork() {
 
     if (queue.length > 0) {
         var properties = queue.pop();
-        if (properties[columns[4]] && properties[columns[5]]) {
+        if (properties[columns[3]] && properties[columns[4]]) {
             /*
             var ejerlav = properties[columns[25]];
             var matrnr = properties[columns[26]]
             */
-            var kommunenr = properties[columns[4]];
-            var ejdnr = properties[columns[5]];
+            var kommunenr = properties[columns[3]];
+            var ejdnr = properties[columns[4]];
             var esrejdnr = kommunenr + ejdnr.padStart(7, '0');
             /*
             if (!index.hasOwnProperty(ejerlav)) {
@@ -535,8 +540,8 @@ function doWork() {
             if (!index.hasOwnProperty(esrejdnr)) {
                 //index[ejerlav][matrnr] = true;
                 index[esrejdnr] = true;
-                //$.getJSON("https://services.kortforsyningen.dk/?login=runetvilum&password=rutv2327&outgeoref=EPSG:4326&servicename=RestGeokeys_v2&method=matrikelnr&ejkode=" + properties[columns[25]] + "&matnr=" + properties[columns[26]] + "&geometry=true", function (data) {
-                $.getJSON("https://services.kortforsyningen.dk/?login=runetvilum&password=rutv2327&servicename=RestGeokeys_v2&method=esrejendom&esrejdnr=" + esrejdnr + "&geometry=true", function (data) {
+                //$.getJSON("https://services.kortforsyningen.dk/?login=parGP&password=74trhg87&outgeoref=EPSG:4326&servicename=RestGeokeys_v2&method=matrikelnr&ejkode=" + properties[columns[25]] + "&matnr=" + properties[columns[26]] + "&geometry=true", function (data) {
+                $.getJSON("https://services.kortforsyningen.dk/?login=parGP&password=74trhg87&servicename=RestGeokeys_v2&method=esrejendom&esrejdnr=" + esrejdnr + "&geometry=true", function (data) {
                     if (data.features) {
                         $('#status').append('<tr><td>' + esrejdnr + '</td><td>OK</td><td>' + data.features.length + '</td></tr>');
                         for (var n = 0; n < data.features.length; n++) {
@@ -600,22 +605,22 @@ function handleFileSelect(evt) {
                         columns = data;
                     } else {
                         var properties = {};
-                        for (var n = 0; n < data.length; n++) {
+                        for (var n = 0; n < 5; n++) {
                             properties[columns[n]] = data[n];
                         }
+
                         properties.aktuel_min_height = 0;
                         properties.aktuel_height = 0;
                         properties.historisk_min_height = 0;
                         properties.historisk_height = 0;
                         var aktuel = 0, historisk = 0;
-                        if (properties.hasOwnProperty(columns[17])) {
-                            historisk = parseInt(properties[columns[17]].replace(/\./g, ''))
-                            properties.historisk_height = historisk / 100000;
-                        }
-                        if (properties.hasOwnProperty(columns[12])) {
-                            aktuel = parseInt(properties[columns[12]].replace(/\./g, ''))
-                            properties.aktuel_height = aktuel / 100000;
-                        }
+                        // determine historic property value
+                        historisk = parseInt(data[16]);
+                        properties.historisk_height = historisk / 100000;
+                        // determine actual property value
+                        aktuel = parseInt(data[11]);
+                        properties.aktuel_height = aktuel / 100000;
+
                         if (aktuel < historisk) {
                             properties.historisk_min_height = properties.aktuel_height;
                             properties.aktuel_min_height = 0;
