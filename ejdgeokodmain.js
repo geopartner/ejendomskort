@@ -271,13 +271,13 @@ map.on('load', function () {
         data: geojson
     });
     map.addLayer({ 
-        'id': 'Aktuel',
+        'id': 'Ejendomme',
         'type': 'fill',
         'source': 'csv',
         'paint': {
             'fill-outline-color': '#000',
             'fill-color': {
-                property: 'aktuel',
+                property: 'Ejendomme',
                 stops: [
                     [0, '#F2F12D'],
                     [500000, '#EED322'],
@@ -295,103 +295,14 @@ map.on('load', function () {
         'layout': {
             'visibility': 'visible'
         }
-    });
+    });    
+    
     map.addLayer({
-        'id': 'Historisk',
-        'type': 'fill',
-        'source': 'csv',
-        'paint': {
-            'fill-outline-color': '#000',
-            'fill-color': {
-                property: 'historisk',
-                stops: [
-                    [0, '#F2F12D'],
-                    [500000, '#EED322'],
-                    [750000, '#E6B71E'],
-                    [1000000, '#DA9C20'],
-                    [2500000, '#CA8323'],
-                    [5000000, '#B86B25'],
-                    [7500000, '#A25626'],
-                    [10000000, '#8B4225'],
-                    [25000000, '#723122']
-                ]
-            },
-            'fill-opacity': 0.75
-        },
-        'layout': {
-            'visibility': 'none'
-        }
-    });
-    map.addLayer({
-        'id': 'Delta',
-        'type': 'fill-extrusion',
-        //        'minzoom': 15,
-        'source': 'csv',
-        'paint': {
-            'fill-extrusion-color': {
-                'type': 'identity',
-                'property': 'delta_color'
-            },
-            'fill-extrusion-height': {
-                'type': 'identity',
-                'property': 'delta_height'
-            },
-            'fill-extrusion-base': {
-                'type': 'identity',
-                'property': 'delta_min_height'
-            },
-            'fill-extrusion-opacity': .6
-        },
-        'layout': {
-            'visibility': 'none'
-        }
-    });
-    /*
-    map.addLayer({
-        'id': 'aktuel-3d',
-        'type': 'fill-extrusion',
-        'minzoom': 15,
-        'source': 'csv',
-        'paint': {
-            'fill-extrusion-color': '#F44336',
-            'fill-extrusion-height': {
-                'type': 'identity',
-                'property': 'aktuel_height'
-            },
-            'fill-extrusion-base': {
-                'type': 'identity',
-                'property': 'aktuel_min_height'
-            },
-            'fill-extrusion-opacity': .6
-        }
-    });
-    map.addLayer({
-        'id': 'historisk-3d',
-        'type': 'fill-extrusion',
-        'minzoom': 15,
-        'source': 'csv',
-        'paint': {
-            'fill-extrusion-color': '#2196F3',
-            'fill-extrusion-height': {
-                'type': 'identity',
-                'property': 'historisk_height'
-            },
-            'fill-extrusion-base': {
-                'type': 'identity',
-                'property': 'historisk_min_height'
-            },
-            'fill-extrusion-opacity': .6
-        }
-    });
-*/
-
-
-    map.addLayer({
-        'id': 'Aktuel-label',
+        'id': 'Ejendomme-label',
         'type': 'symbol',
         'source': 'csv',
         'layout': {
-            'text-field': '{aktuel_locale}',
+            'text-field': '{Ejendomme_locale}',
             'text-font': [
                 'DIN Offc Pro Medium',
                 'Arial Unicode MS Bold'
@@ -402,42 +313,9 @@ map.on('load', function () {
             'text-color': '#000'
         }
     })
-    map.addLayer({
-        'id': 'Historisk-label',
-        'type': 'symbol',
-        'source': 'csv',
-        'layout': {
-            'visibility': 'none',
-            'text-field': '{historisk_locale}',
-            'text-font': [
-                'DIN Offc Pro Medium',
-                'Arial Unicode MS Bold'
-            ],
-            'text-size': 12
-        },
-        'paint': {
-            'text-color': '#000'
-        }
-    })
-    map.addLayer({
-        'id': 'Delta-label',
-        'type': 'symbol',
-        'source': 'csv',
-        'layout': {
-            'visibility': 'none',
-            'text-field': '{delta_locale}',
-            'text-font': [
-                'DIN Offc Pro Medium',
-                'Arial Unicode MS Bold'
-            ],
-            'text-size': 12
-        },
-        'paint': {
-            'text-color': '#000'
-        }
-    })
+   
     map.on('click', function (e) {
-        var features = map.queryRenderedFeatures(e.point, { layers: ['Aktuel', 'Historisk', 'Delta'] });
+        var features = map.queryRenderedFeatures(e.point, { layers: ['Ejendomme'] });
 
         if (!features.length) {
             return;
@@ -466,10 +344,10 @@ map.on('load', function () {
     // Use the same approach as above to indicate that the symbols are clickable
     // by changing the cursor style to 'pointer'.
     map.on('mousemove', function (e) {
-        var features = map.queryRenderedFeatures(e.point, { layers: ['Aktuel', 'Historisk', 'Delta'] });
+        var features = map.queryRenderedFeatures(e.point, { layers: ['Ejendomme'] });
         map.getCanvas().style.cursor = (features.length) ? 'pointer' : '';
     });
-    var toggleableLayerIds = ['Aktuel', 'Historisk', 'Delta'];
+    var toggleableLayerIds = ['Ejendomme'];
     var links = {}
     for (var i = 0; i < toggleableLayerIds.length; i++) {
         var id = toggleableLayerIds[i];
@@ -523,13 +401,13 @@ function doWork() {
 
     if (queue.length > 0) {
         var properties = queue.pop();
-        if (properties[columns[3]] && properties[columns[4]]) {
+        if (properties[columns[0]] && properties[columns[1]]) {
             /*
             var ejerlav = properties[columns[25]];
             var matrnr = properties[columns[26]]
             */
-            var kommunenr = properties[columns[3]];
-            var ejdnr = properties[columns[4]];
+            var kommunenr = properties[columns[0]];
+            var ejdnr = properties[columns[1]];
             var esrejdnr = kommunenr + ejdnr.padStart(7, '0');
             /*
             if (!index.hasOwnProperty(ejerlav)) {
@@ -540,7 +418,6 @@ function doWork() {
             if (!index.hasOwnProperty(esrejdnr)) {
                 //index[ejerlav][matrnr] = true;
                 index[esrejdnr] = true;
-                //$.getJSON("https://services.kortforsyningen.dk/?login=parGP&password=74trhg87&outgeoref=EPSG:4326&servicename=RestGeokeys_v2&method=matrikelnr&ejkode=" + properties[columns[25]] + "&matnr=" + properties[columns[26]] + "&geometry=true", function (data) {
                 $.getJSON("https://services.kortforsyningen.dk/?login=parGP&password=74trhg87&servicename=RestGeokeys_v2&method=esrejendom&esrejdnr=" + esrejdnr + "&geometry=true", function (data) {
                     if (data.features) {
                         $('#status').append('<tr><td>' + esrejdnr + '</td><td>OK</td><td>' + data.features.length + '</td></tr>');
@@ -563,7 +440,7 @@ function doWork() {
                             geojson.features.push(feature);
                         }
                     } else {
-                        $('#status').append('<tr class="danger"><td>' + esrejdnr + '</td><td>Fejl</td><td>0</td></tr>');
+                        $('#status').append('<tr class="danger"><td>' + esrejdnr + '</td><td>Fejl i geokodning</td><td>0</td></tr>');
                     }
                     doWork();
                 });
@@ -608,35 +485,6 @@ function handleFileSelect(evt) {
                         for (var n = 0; n < 5; n++) {
                             properties[columns[n]] = data[n];
                         }
-
-                        properties.aktuel_min_height = 0;
-                        properties.aktuel_height = 0;
-                        properties.historisk_min_height = 0;
-                        properties.historisk_height = 0;
-                        var aktuel = 0, historisk = 0;
-                        // determine historic property value
-                        historisk = parseInt(data[16]);
-                        properties.historisk_height = historisk / 100000;
-                        // determine actual property value
-                        aktuel = parseInt(data[11]);
-                        properties.aktuel_height = aktuel / 100000;
-
-                        if (aktuel < historisk) {
-                            properties.historisk_min_height = properties.aktuel_height;
-                            properties.aktuel_min_height = 0;
-                            properties.delta_color = "#F00";
-                            properties.delta_height = (historisk - aktuel) / 100000;
-                        } else {
-                            properties.historisk_min_height = 0;
-                            properties.aktuel_min_height = properties.historisk_height;
-                            properties.delta_color = "#0F0";
-                            properties.delta_height = (aktuel - historisk) / 100000;
-                        }
-                        properties.aktuel_locale = aktuel.toLocaleString('da-DK') + ' kr.';
-                        properties.historisk_locale = historisk.toLocaleString('da-DK') + ' kr.';
-                        properties.delta_locale = (aktuel - historisk).toLocaleString('da-DK') + ' kr.';
-                        properties.aktuel = aktuel;
-                        properties.historisk = historisk;
 
                         queue.push(properties);
                     }
