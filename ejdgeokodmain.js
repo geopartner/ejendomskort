@@ -409,6 +409,7 @@ function doWork() {
             var kommunenr = properties[columns[0]];
             var ejdnr = properties[columns[1]];
             var esrejdnr = kommunenr + ejdnr.padStart(7, '0');
+            alert(esrejdnr);
             /*
             if (!index.hasOwnProperty(ejerlav)) {
                 index[ejerlav] = {};
