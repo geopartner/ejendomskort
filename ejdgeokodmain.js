@@ -187,28 +187,7 @@ map.on('load', function () {
     geocoder.on('result', function (ev) {
         map.getSource('single-point').setData(ev.result.geometry);
     });
-    /*
-    map.addLayer({
-        'id': '3d-buildings',
-        'source': 'composite',
-        'source-layer': 'building',
-        'filter': ['==', 'extrude', 'true'],
-        'type': 'fill-extrusion',
-        'minzoom': 15,
-        'paint': {
-            'fill-extrusion-color': '#aaa',
-            'fill-extrusion-height': {
-                'type': 'identity',
-                'property': 'height'
-            },
-            'fill-extrusion-base': {
-                'type': 'identity',
-                'property': 'min_height'
-            },
-            'fill-extrusion-opacity': .6
-        }
-    });
-    */
+   
     var style = map.getStyle();
     for (var n = 0; n < style.layers.length; n++) {
         var layer = style.layers[n];
@@ -216,56 +195,7 @@ map.on('load', function () {
             map.setLayoutProperty(layer.id, 'text-field', '{name}');
         }
     }
-    /*map.addSource('ejerlav', {
-        "type": "vector",        
-        "tiles": ["http://192.168.1.10:8080/geoserver/gwc/service/wmts?REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&LAYER=geopartner:ejerlav&STYLE=&TILEMATRIX=EPSG:900913:{z}&TILEMATRIXSET=EPSG:900913&FORMAT=application/x-protobuf;type=mapbox-vector&TILECOL={x}&TILEROW={y}"]
-    });
-    map.addLayer({
-        'id': 'Ejerlav',
-        'type': 'fill',
-        'source': 'ejerlav',
-        'source-layer': 'ejerlav',
-        'paint': {
-            'fill-color': '#f00',
-            'fill-opacity': 0.5
-        }
-    });
-    map.addSource('matrikelskel', {
-        "type": "vector",        
-        "tiles": ["http://192.168.1.10:8080/geoserver/gwc/service/wmts?REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&LAYER=geopartner:matrikelskel&STYLE=&TILEMATRIX=EPSG:900913:{z}&TILEMATRIXSET=EPSG:900913&FORMAT=application/x-protobuf;type=mapbox-vector&TILECOL={x}&TILEROW={y}"],
-        'minzoom': 14
-    });
-    map.addSource('centroide', {
-        "type": "vector",        
-        "tiles": ["http://192.168.1.10:8080/geoserver/gwc/service/wmts?REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&LAYER=geopartner:centroide&STYLE=&TILEMATRIX=EPSG:900913:{z}&TILEMATRIXSET=EPSG:900913&FORMAT=application/x-protobuf;type=mapbox-vector&TILECOL={x}&TILEROW={y}"],
-        'minzoom': 16
-    });
-    map.addLayer({
-        'id': 'Matrikelskel',
-        'type': 'line',
-        'source': 'matrikelskel',
-        'source-layer': 'matrikelskel',
-        'paint': {
-            'line-color': '#000',
-        }
-    });
-    map.addLayer({
-        'id': 'Matrikelnummer',
-        'type': 'symbol',
-        'source': 'centroide',
-        'source-layer': 'centroide',
-        'layout': {
-            'text-field': '{matrikelnummer}',
-            'text-font': [
-                'DIN Offc Pro Medium',
-                'Arial Unicode MS Bold'
-            ],
-            'text-size': 12
-        },
-        'paint': {
-            'text-color': '#000'
-        }
-    })*/
+    
     map.addSource('csv', {
         type: 'geojson',
         data: geojson
@@ -274,20 +204,22 @@ map.on('load', function () {
         'id': 'Ejendomme',
         'type': 'fill',
         'source': 'csv',
+		
         'paint': {
             'fill-outline-color': '#000',
             'fill-color': {
-                property: 'Ejendomme',
+                property: 'enheder',
+				type: 'interval',
                 stops: [
-                    [0, '#F2F12D'],
-                    [500000, '#EED322'],
-                    [750000, '#E6B71E'],
-                    [1000000, '#DA9C20'],
-                    [2500000, '#CA8323'],
-                    [5000000, '#B86B25'],
-                    [7500000, '#A25626'],
-                    [10000000, '#8B4225'],
-                    [25000000, '#723122']
+                    [1, '#F2F12D'],
+                    [2, '#EED322'],
+                    [4, '#E6B71E'],
+                    [8, '#DA9C20'],
+                    [16, '#CA8323'],
+                    [32, '#B86B25'],
+                    [64, '#A25626'],
+                    [128, '#8B4225'],
+                    [256, '#723122']
                 ]
             },
             'fill-opacity': 0.75
@@ -295,14 +227,14 @@ map.on('load', function () {
         'layout': {
             'visibility': 'visible'
         }
-    });    
+    });  
     
     map.addLayer({
-        'id': 'Ejendomme-label',
+        'id': 'Enheder-text',
         'type': 'symbol',
         'source': 'csv',
         'layout': {
-            'text-field': '{Ejendomme_locale}',
+            'text-field': '{Ejd.nr.}',
             'text-font': [
                 'DIN Offc Pro Medium',
                 'Arial Unicode MS Bold'
@@ -409,7 +341,6 @@ function doWork() {
             var kommunenr = properties[columns[0]];
             var ejdnr = properties[columns[1]];
             var esrejdnr = kommunenr + ejdnr.padStart(7, '0');
-            alert(esrejdnr);
             /*
             if (!index.hasOwnProperty(ejerlav)) {
                 index[ejerlav] = {};
@@ -486,7 +417,6 @@ function handleFileSelect(evt) {
                         for (var n = 0; n < 5; n++) {
                             properties[columns[n]] = data[n];
                         }
-
                         queue.push(properties);
                     }
 
